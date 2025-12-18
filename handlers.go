@@ -97,6 +97,8 @@ func handleToolCall(params interface{}) (interface{}, *RPCError) {
 		return executeListTables()
 	case "describe_table":
 		return executeDescribeTable(callParams.Arguments)
+	case "map_relationships":
+		return executeMapRelationships(callParams.Arguments)
 	default:
 		return nil, &RPCError{Code: -32601, Message: "Tool not found"}
 	}

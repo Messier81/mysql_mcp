@@ -44,6 +44,24 @@ func getToolsList() []Tool {
 				Required: []string{"table_name"},
 			},
 		},
+		{
+			Name:        "map_relationships",
+			Description: "Map out all foreign key relationships for a table. Shows which tables reference this table (incoming) and which tables this table references (outgoing). Can traverse multiple degrees of relationships to discover indirect connections.",
+			InputSchema: InputSchema{
+				Type: "object",
+				Properties: map[string]Property{
+					"table_name": {
+						Type:        "string",
+						Description: "The name of the table to map relationships for",
+					},
+					"depth": {
+						Type:        "integer",
+						Description: "How many degrees of relationships to explore (1-3, default: 1). Depth 1 shows direct connections, depth 2 shows friends-of-friends, etc.",
+					},
+				},
+				Required: []string{"table_name"},
+			},
+		},
 	}
 }
 

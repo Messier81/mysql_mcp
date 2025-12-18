@@ -259,24 +259,6 @@ Other tables that depend on users:
 
 **Response:** SQL query executed, results formatted as JSON.
 
-## 📁 Project Structure
-
-```
-mysql_mcp/
-├── main.go              # Entry point & database connection
-├── types.go             # MCP protocol data structures
-├── handlers.go          # Message routing & dispatcher
-├── database.go          # Database operations
-├── tools.go             # Tool registry/catalog
-├── tool_query.go        # SQL query executor
-├── tool_tables.go       # Table lister
-├── tool_schema.go       # Schema inspector
-├── tool_relationships.go # Relationship mapper
-├── go.mod               # Go dependencies
-├── Dockerfile           # Multi-stage Docker build
-└── README.md            # Documentation
-```
-
 ## 🔒 Security Best Practices
 
 ⚠️ **Important Considerations:**
@@ -290,41 +272,8 @@ mysql_mcp/
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Guidelines
-
-- Follow Go best practices
-- Keep each tool in its own file (`tool_*.go`)
-- Add comments explaining complex logic
-- Test with real databases before submitting
+Pull requests are welcome!
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👤 Author
-
-**N.J. Luna**
-
-## 🙏 Acknowledgments
-
-- Built with the [Model Context Protocol](https://modelcontextprotocol.io/)
-- Powered by Go's `database/sql` and [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)
-- Inspired by the need for better database exploration tools
-
-## 📚 Resources
-
-- [Model Context Protocol Documentation](https://modelcontextprotocol.io/)
-- [Go MySQL Driver](https://github.com/go-sql-driver/mysql)
-- [Effective Go](https://go.dev/doc/effective_go)
-
----
-
-**⭐ If you find this tool useful, please star the repository!**
+MIT License - see [LICENSE](LICENSE) file for details.

@@ -149,33 +149,6 @@ func buildRelationshipMap(tableName string, depth int) (string, error) {
 	result.WriteString(fmt.Sprintf("- Direct outgoing references: %d\n", len(outgoing)))
 	result.WriteString(fmt.Sprintf("- Direct incoming references: %d\n", len(incoming)))
 	result.WriteString(fmt.Sprintf("- Total connected tables: %d\n", len(visited)-1))
-	result.WriteString("\n")
-
-	// Generate Mermaid ER diagram
-	result.WriteString("## Entity Relationship Diagram\n\n")
-	result.WriteString("```mermaid\n")
-	result.WriteString("erDiagram\n")
-	
-	// Add outgoing relationships (this table references others)
-	// Format: CHILD }o--|| PARENT : "FK_column"
-	for _, rel := range outgoing {
-		result.WriteString(fmt.Sprintf("    %s }o--|| %s : \"FK_%s\"\n",
-			tableName, rel.ReferencedTable, rel.ColumnName))
-	}
-	
-	// Add incoming relationships (others reference this table)
-	// Format: PARENT ||--o{ CHILD : "FK_column"
-	for _, rel := range incoming {
-		result.WriteString(fmt.Sprintf("    %s ||--o{ %s : \"FK_%s\"\n",
-			tableName, rel.TableName, rel.ColumnName))
-	}
-	
-	// If no relationships, show the table by itself
-	if len(outgoing) == 0 && len(incoming) == 0 {
-		result.WriteString(fmt.Sprintf("    %s\n", tableName))
-	}
-	
-	result.WriteString("```\n")
 
 	return result.String(), nil
 }

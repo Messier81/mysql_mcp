@@ -116,6 +116,10 @@ The AI will use the MCP tools to query your database and provide answers.
 
 MIT License - see [LICENSE](LICENSE) file for details
 
+## Repository
+
+GitHub: [Messier81/mysql_mcp](https://github.com/Messier81/mysql_mcp)
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.

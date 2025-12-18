@@ -1,0 +1,49 @@
+package main
+
+// tools.go
+// This file defines all available MCP tools (the registry/catalog).
+
+// getToolsList returns the list of all tools we support.
+// This is called when the AI asks "what can you do?"
+func getToolsList() []Tool {
+	return []Tool{
+		{
+			Name:        "query_database",
+			Description: "Execute a SQL query against the MySQL database. Returns results as JSON. Use this to inspect tables, fetch data, or run any SELECT query.",
+			InputSchema: InputSchema{
+				Type: "object",
+				Properties: map[string]Property{
+					"query": {
+						Type:        "string",
+						Description: "The SQL query to execute (e.g., 'SELECT * FROM users LIMIT 10')",
+					},
+				},
+				Required: []string{"query"},
+			},
+		},
+		{
+			Name:        "list_tables",
+			Description: "List all tables in the current database. No arguments needed.",
+			InputSchema: InputSchema{
+				Type:       "object",
+				Properties: map[string]Property{},
+				Required:   []string{},
+			},
+		},
+		{
+			Name:        "describe_table",
+			Description: "Get detailed schema information about a specific table including columns, data types, indexes, primary keys, and foreign key relationships.",
+			InputSchema: InputSchema{
+				Type: "object",
+				Properties: map[string]Property{
+					"table_name": {
+						Type:        "string",
+						Description: "The name of the table to describe (e.g., 'users', 'authentication_api_authenticateduser')",
+					},
+				},
+				Required: []string{"table_name"},
+			},
+		},
+	}
+}
+

@@ -2,11 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 // handlers.go
-// This file contains all the logic for handling MCP messages.
+// This file contains the core MCP message routing logic.
+// Tool implementations are in separate tool_*.go files.
 
 // handleMessage processes one request from the AI.
 // It parses the JSON-RPC message, routes it to the appropriate handler,
@@ -71,35 +71,12 @@ func handleInitialize() interface{} {
 // The AI calls this to discover what it can do.
 func handleToolsList() interface{} {
 	return map[string]interface{}{
-		"tools": []Tool{
-			{
-				Name:        "query_database",
-				Description: "Execute a SQL query against the MySQL database. Returns results as JSON. Use this to inspect tables, fetch data, or run any SELECT query.",
-				InputSchema: InputSchema{
-					Type: "object",
-					Properties: map[string]Property{
-						"query": {
-							Type:        "string",
-							Description: "The SQL query to execute (e.g., 'SELECT * FROM users LIMIT 10')",
-						},
-					},
-					Required: []string{"query"},
-				},
-			},
-			{
-				Name:        "list_tables",
-				Description: "List all tables in the current database. No arguments needed.",
-				InputSchema: InputSchema{
-					Type:       "object",
-					Properties: map[string]Property{}, // No arguments
-					Required:   []string{},
-				},
-			},
-		},
+		"tools": getToolsList(),
 	}
 }
 
 // handleToolCall executes the actual logic for a specific tool.
+// It routes to the appropriate tool implementation based on the tool name.
 func handleToolCall(params interface{}) (interface{}, *RPCError) {
 	// Parse the params to find out WHICH tool and WHAT arguments
 	paramsBytes, err := json.Marshal(params)
@@ -112,63 +89,15 @@ func handleToolCall(params interface{}) (interface{}, *RPCError) {
 		return nil, &RPCError{Code: -32602, Message: "Invalid params"}
 	}
 
-	// Route to the specific tool
+	// Route to the specific tool implementation
 	switch callParams.Name {
 	case "query_database":
 		return executeQueryDatabase(callParams.Arguments)
 	case "list_tables":
 		return executeListTables()
+	case "describe_table":
+		return executeDescribeTable(callParams.Arguments)
 	default:
 		return nil, &RPCError{Code: -32601, Message: "Tool not found"}
 	}
 }
-
-// executeQueryDatabase runs a user-provided SQL query.
-func executeQueryDatabase(args interface{}) (interface{}, *RPCError) {
-	// Parse the arguments
-	argsBytes, _ := json.Marshal(args)
-	var queryArgs struct {
-		Query string `json:"query"`
-	}
-	if err := json.Unmarshal(argsBytes, &queryArgs); err != nil {
-		return nil, &RPCError{Code: -32602, Message: "Invalid arguments for query_database"}
-	}
-
-	// Run the query
-	result, err := runQuery(queryArgs.Query)
-	if err != nil {
-		return map[string]interface{}{
-			"content": []map[string]interface{}{
-				{"type": "text", "text": fmt.Sprintf("Error executing query: %v", err)},
-			},
-			"isError": true,
-		}, nil
-	}
-
-	// Return success
-	return map[string]interface{}{
-		"content": []map[string]interface{}{
-			{"type": "text", "text": result},
-		},
-	}, nil
-}
-
-// executeListTables lists all tables in the database.
-func executeListTables() (interface{}, *RPCError) {
-	result, err := runQuery("SHOW TABLES")
-	if err != nil {
-		return map[string]interface{}{
-			"content": []map[string]interface{}{
-				{"type": "text", "text": fmt.Sprintf("Error listing tables: %v", err)},
-			},
-			"isError": true,
-		}, nil
-	}
-
-	return map[string]interface{}{
-		"content": []map[string]interface{}{
-			{"type": "text", "text": result},
-		},
-	}, nil
-}
-

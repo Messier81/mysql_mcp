@@ -63,8 +63,8 @@ func buildRelationshipMap(tableName string, depth int) (string, error) {
 	visited[tableName] = true
 
 	// Get outgoing relationships (this table references others)
-	result.WriteString("## Outgoing References (This table -> Others)\n")
-	result.WriteString(fmt.Sprintf("Tables that %s references:\n\n", tableName))
+	result.WriteString("## Outgoing References\n")
+	result.WriteString(fmt.Sprintf("When %s needs data from other tables:\n\n", tableName))
 	
 	outgoing, err := getOutgoingRelationships(tableName)
 	if err != nil {
@@ -72,19 +72,20 @@ func buildRelationshipMap(tableName string, depth int) (string, error) {
 	}
 
 	if len(outgoing) == 0 {
-		result.WriteString("*No outgoing foreign keys*\n\n")
+		result.WriteString("   (none - this table doesn't reference other tables)\n\n")
 	} else {
 		for _, rel := range outgoing {
-			result.WriteString(fmt.Sprintf("- %s.%s -> %s.%s\n",
-				tableName, rel.ColumnName, rel.ReferencedTable, rel.ReferencedColumn))
+			result.WriteString(fmt.Sprintf("   %s -[%s]-> %s\n",
+				tableName, rel.ColumnName, rel.ReferencedTable))
+			result.WriteString(fmt.Sprintf("      '%s' points to '%s.%s'\n\n",
+				rel.ColumnName, rel.ReferencedTable, rel.ReferencedColumn))
 			visited[rel.ReferencedTable] = true
 		}
-		result.WriteString("\n")
 	}
 
 	// Get incoming relationships (others reference this table)
-	result.WriteString("## Incoming References (Others -> This table)\n")
-	result.WriteString(fmt.Sprintf("Tables that reference %s:\n\n", tableName))
+	result.WriteString("## Incoming References\n")
+	result.WriteString(fmt.Sprintf("Other tables that depend on %s:\n\n", tableName))
 	
 	incoming, err := getIncomingRelationships(tableName)
 	if err != nil {
@@ -92,20 +93,21 @@ func buildRelationshipMap(tableName string, depth int) (string, error) {
 	}
 
 	if len(incoming) == 0 {
-		result.WriteString("*No incoming foreign keys*\n\n")
+		result.WriteString("   (none - no other tables reference this table)\n\n")
 	} else {
 		for _, rel := range incoming {
-			result.WriteString(fmt.Sprintf("- %s.%s -> %s.%s\n",
-				rel.TableName, rel.ColumnName, rel.ReferencedTable, rel.ReferencedColumn))
+			result.WriteString(fmt.Sprintf("   %s -[%s]-> %s\n",
+				rel.TableName, rel.ColumnName, tableName))
+			result.WriteString(fmt.Sprintf("      '%s.%s' points to '%s.%s'\n\n",
+				rel.TableName, rel.ColumnName, tableName, rel.ReferencedColumn))
 			visited[rel.TableName] = true
 		}
-		result.WriteString("\n")
 	}
 
 	// If depth > 1, explore 2nd degree relationships
 	if depth > 1 {
-		result.WriteString("## 2nd Degree Relationships\n")
-		result.WriteString("Tables connected through intermediaries:\n\n")
+		result.WriteString("## 2nd Degree Connections\n")
+		result.WriteString("Tables connected indirectly (2 hops away):\n\n")
 		
 		secondDegree := make(map[string][]string)
 		
@@ -121,26 +123,40 @@ func buildRelationshipMap(tableName string, depth int) (string, error) {
 			
 			for _, rel := range outRels {
 				if rel.ReferencedTable != tableName && !visited[rel.ReferencedTable] {
-					path := fmt.Sprintf("%s → %s → %s", tableName, connectedTable, rel.ReferencedTable)
+					path := fmt.Sprintf("%s -> %s -> %s", tableName, connectedTable, rel.ReferencedTable)
 					secondDegree[rel.ReferencedTable] = append(secondDegree[rel.ReferencedTable], path)
 				}
 			}
 			
 			for _, rel := range inRels {
 				if rel.TableName != tableName && !visited[rel.TableName] {
-					path := fmt.Sprintf("%s → %s → %s", tableName, connectedTable, rel.TableName)
+					path := fmt.Sprintf("%s -> %s -> %s", tableName, connectedTable, rel.TableName)
 					secondDegree[rel.TableName] = append(secondDegree[rel.TableName], path)
 				}
 			}
 		}
 		
 		if len(secondDegree) == 0 {
-			result.WriteString("*No 2nd degree relationships found*\n\n")
+			result.WriteString("   (none found)\n\n")
 		} else {
+			count := 0
 			for table, paths := range secondDegree {
-				result.WriteString(fmt.Sprintf("- %s (via: %s)\n", table, strings.Join(paths, ", ")))
+				count++
+				if count <= 10 { // Limit to first 10 for readability
+					result.WriteString(fmt.Sprintf("   %s\n", table))
+					for _, path := range paths {
+						if len(paths) == 1 {
+							result.WriteString(fmt.Sprintf("      via: %s\n", path))
+						} else {
+							result.WriteString(fmt.Sprintf("      via: %s\n", path))
+						}
+					}
+					result.WriteString("\n")
+				}
 			}
-			result.WriteString("\n")
+			if count > 10 {
+				result.WriteString(fmt.Sprintf("   ... and %d more tables\n\n", count-10))
+			}
 		}
 	}
 

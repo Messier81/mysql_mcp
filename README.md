@@ -10,7 +10,8 @@ A [Model Context Protocol](https://modelcontextprotocol.io/) server that enables
 
 ## ✨ Features
 
-- **🔍 SQL Query Execution** - Run any SQL query and get formatted results
+- **🔍 Global Search** - Find any value across all tables and columns instantly
+- **💾 SQL Query Execution** - Run any SQL query and get formatted results
 - **📋 Table Discovery** - List all tables in your database
 - **🔬 Schema Inspector** - Deep dive into table structure (columns, indexes, foreign keys, metadata)
 - **🗺️ Relationship Mapper** - Visualize foreign key relationships with multi-degree traversal
@@ -95,7 +96,49 @@ Add to your `~/.cursor/mcp.json`:
 
 ## 🛠️ Available Tools
 
-### 1️⃣ `query_database`
+### 1️⃣ `search_database`
+
+Search for a value across ALL tables and columns in the database.
+
+**Parameters:**
+- `search_term` (string, required): The value to search for
+- `limit` (integer, optional): Max results per table (1-20, default: 5)
+
+**What it searches:**
+- All text/varchar columns in every table
+- Case-insensitive matching
+- Partial matches (uses LIKE '%term%')
+
+**Example Output:**
+```
+# Global Search Results: 'john@example.com'
+
+## users
+Found 1 match(es):
+   Column: email
+   Value: john@example.com
+   Row: {"id":123,"email":"john@example.com","name":"John Doe"}
+
+## audit_logs
+Found 2 match(es):
+   Column: details
+   Value: User john@example.com logged in
+   Row: {"id":456,"action":"login","details":"User john@example.com logged in"}
+
+## Summary
+- Tables searched: 90
+- Tables with matches: 2
+- Total matches found: 3
+```
+
+**Natural Language:**
+- "Find 'demo@clio.com' anywhere in the database"
+- "Search for user ID 12345 across all tables"
+- "Where does 'John Doe' appear in the database?"
+
+---
+
+### 2️⃣ `query_database`
 
 Execute SQL queries and retrieve results as JSON.
 
@@ -115,7 +158,7 @@ SELECT COUNT(*) as total FROM orders WHERE status = 'completed'
 
 ---
 
-### 2️⃣ `list_tables`
+### 3️⃣ `list_tables`
 
 List all tables in the current database.
 
@@ -128,7 +171,7 @@ List all tables in the current database.
 
 ---
 
-### 3️⃣ `describe_table`
+### 4️⃣ `describe_table`
 
 Get comprehensive schema information about a specific table.
 
@@ -172,7 +215,7 @@ Get comprehensive schema information about a specific table.
 
 ---
 
-### 4️⃣ `map_relationships`
+### 5️⃣ `map_relationships`
 
 Map out foreign key relationships for a table, showing connections in both directions.
 

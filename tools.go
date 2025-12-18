@@ -62,6 +62,24 @@ func getToolsList() []Tool {
 				Required: []string{"table_name"},
 			},
 		},
+		{
+			Name:        "search_database",
+			Description: "Search for a value across all tables and columns in the database. Searches all text/varchar columns and returns matching rows. Useful for finding where a specific value (email, ID, name, etc.) appears in the database.",
+			InputSchema: InputSchema{
+				Type: "object",
+				Properties: map[string]Property{
+					"search_term": {
+						Type:        "string",
+						Description: "The value to search for (e.g., 'john@example.com', 'John Doe', '12345')",
+					},
+					"limit": {
+						Type:        "integer",
+						Description: "Maximum results per table (1-20, default: 5)",
+					},
+				},
+				Required: []string{"search_term"},
+			},
+		},
 	}
 }
 

@@ -63,8 +63,8 @@ func buildRelationshipMap(tableName string, depth int) (string, error) {
 	visited[tableName] = true
 
 	// Get outgoing relationships (this table references others)
-	result.WriteString("## 📤 Outgoing References (This table → Others)\n")
-	result.WriteString(fmt.Sprintf("Tables that **%s** references:\n\n", tableName))
+	result.WriteString("## Outgoing References (This table -> Others)\n")
+	result.WriteString(fmt.Sprintf("Tables that %s references:\n\n", tableName))
 	
 	outgoing, err := getOutgoingRelationships(tableName)
 	if err != nil {
@@ -75,7 +75,7 @@ func buildRelationshipMap(tableName string, depth int) (string, error) {
 		result.WriteString("*No outgoing foreign keys*\n\n")
 	} else {
 		for _, rel := range outgoing {
-			result.WriteString(fmt.Sprintf("- **%s**.%s → **%s**.%s\n",
+			result.WriteString(fmt.Sprintf("- %s.%s -> %s.%s\n",
 				tableName, rel.ColumnName, rel.ReferencedTable, rel.ReferencedColumn))
 			visited[rel.ReferencedTable] = true
 		}
@@ -83,8 +83,8 @@ func buildRelationshipMap(tableName string, depth int) (string, error) {
 	}
 
 	// Get incoming relationships (others reference this table)
-	result.WriteString("## 📥 Incoming References (Others → This table)\n")
-	result.WriteString(fmt.Sprintf("Tables that reference **%s**:\n\n", tableName))
+	result.WriteString("## Incoming References (Others -> This table)\n")
+	result.WriteString(fmt.Sprintf("Tables that reference %s:\n\n", tableName))
 	
 	incoming, err := getIncomingRelationships(tableName)
 	if err != nil {
@@ -95,7 +95,7 @@ func buildRelationshipMap(tableName string, depth int) (string, error) {
 		result.WriteString("*No incoming foreign keys*\n\n")
 	} else {
 		for _, rel := range incoming {
-			result.WriteString(fmt.Sprintf("- **%s**.%s → **%s**.%s\n",
+			result.WriteString(fmt.Sprintf("- %s.%s -> %s.%s\n",
 				rel.TableName, rel.ColumnName, rel.ReferencedTable, rel.ReferencedColumn))
 			visited[rel.TableName] = true
 		}
@@ -104,7 +104,7 @@ func buildRelationshipMap(tableName string, depth int) (string, error) {
 
 	// If depth > 1, explore 2nd degree relationships
 	if depth > 1 {
-		result.WriteString("## 🔗 2nd Degree Relationships\n")
+		result.WriteString("## 2nd Degree Relationships\n")
 		result.WriteString("Tables connected through intermediaries:\n\n")
 		
 		secondDegree := make(map[string][]string)
@@ -138,14 +138,14 @@ func buildRelationshipMap(tableName string, depth int) (string, error) {
 			result.WriteString("*No 2nd degree relationships found*\n\n")
 		} else {
 			for table, paths := range secondDegree {
-				result.WriteString(fmt.Sprintf("- **%s** (via: %s)\n", table, strings.Join(paths, ", ")))
+				result.WriteString(fmt.Sprintf("- %s (via: %s)\n", table, strings.Join(paths, ", ")))
 			}
 			result.WriteString("\n")
 		}
 	}
 
 	// Summary
-	result.WriteString("## 📊 Summary\n")
+	result.WriteString("## Summary\n")
 	result.WriteString(fmt.Sprintf("- Direct outgoing references: %d\n", len(outgoing)))
 	result.WriteString(fmt.Sprintf("- Direct incoming references: %d\n", len(incoming)))
 	result.WriteString(fmt.Sprintf("- Total connected tables: %d\n", len(visited)-1))

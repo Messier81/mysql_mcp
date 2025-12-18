@@ -132,7 +132,7 @@ Found 2 match(es):
 ```
 
 **Natural Language:**
-- "Find 'demo@clio.com' anywhere in the database"
+- "Find 'user@example.com' anywhere in the database"
 - "Search for user ID 12345 across all tables"
 - "Where does 'John Doe' appear in the database?"
 

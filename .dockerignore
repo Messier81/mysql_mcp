@@ -1,0 +1,8 @@
+# Don't copy these into the Docker build context
+mysql-mcp
+.git
+.gitignore
+README.md
+cursor-mcp-config.json
+*.md
+
